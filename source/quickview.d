@@ -21,6 +21,8 @@ Color yuv(ubyte y, ubyte u, ubyte v) {
     return Color.fromYUV(fy, fu, fv);
 }
 
+version=EVENT_ON_MAIN_THREAD;
+
 class QuickView
 {
     alias EventCallback = bool delegate(SDL_Event);
@@ -67,13 +69,25 @@ class QuickView
 
 
 
+    version(EVENT_ON_MAIN_THREAD)
+    {
+        static void eventLoop() {
+            runEventLoop();
+        }
+    }
+
     this(ulong w, ulong h, string title = "QuickView", long x = -1, long y = -1, string format = "rgb", bool exitOnEscape = true) {
 
         synchronized {
             if (eventThread is null)
             {
-                eventThread = new Thread(&QuickView.runEventLoop);
-                eventThread.start();
+                version(EVENT_ON_MAIN_THREAD) {
+
+                }
+                else {
+                    eventThread = new Thread(&QuickView.runEventLoop);
+                    eventThread.start();
+                }
             }
         }
 
@@ -201,7 +215,12 @@ class QuickView
     }
 
     void waitForClose() {
-        closeEvent.wait();
+        version(EVENT_ON_MAIN_THREAD) {
+
+        }
+        else {
+            closeEvent.wait();
+        }
     }
 
 
@@ -257,7 +276,9 @@ class QuickView
         running = true;
 
         while (running) {
-            if (SDL_WaitEvent(&event)) {
+            auto ret = SDL_WaitEvent(&event);
+
+            if (ret) {
 
                 if ([SDL_WINDOWEVENT, SDL_MOUSEBUTTONDOWN, SDL_MOUSEBUTTONUP, SDL_MOUSEMOTION, SDL_KEYDOWN, SDL_KEYUP].canFind(event.type)) {
 
@@ -845,4 +866,12 @@ private struct BoundingBox {
         y1 = y + h;
     }
 
+}
+
+
+version(OSX) {
+    extern(C) {
+        void* dispatch_get_main_queue();
+        void dispatch_async(void* queue, void function() block);
+    }
 }

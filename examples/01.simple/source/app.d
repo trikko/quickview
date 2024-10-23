@@ -22,5 +22,8 @@ void main()
 		.draw() 					// Draw the buffer to the screen
 		.waitForClose();		// Wait for the window to be closed
 
+	writeln("Running event loop");
+	QuickView.eventLoop();
 	writeln("QuickView closed. Exiting.");
+
 }
