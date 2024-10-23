@@ -1,0 +1,15 @@
+{
+	"authors": [
+		"Andrea Fontana"
+	],
+	"copyright": "Copyright © 2024, Andrea Fontana",
+	"dependencies": {
+		"canvasity": "~>1.0.1",
+		"quickview": {
+			"path": "../.."
+		}
+	},
+	"description": "A minimal D application.",
+	"license": "proprietary",
+	"name": "canvasity_example"
+}

@@ -1,0 +1,16 @@
+.dub
+docs.json
+__dummy.html
+docs/
+/canvasity
+canvasity.so
+canvasity.dylib
+canvasity.dll
+canvasity.a
+canvasity.lib
+canvasity-test-*
+*.exe
+*.pdb
+*.o
+*.obj
+*.lst

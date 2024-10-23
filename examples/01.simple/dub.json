@@ -1,0 +1,14 @@
+{
+	"authors": [
+		"Andrea Fontana"
+	],
+	"copyright": "Copyright © 2024, Andrea Fontana",
+	"description": "A minimal D application.",
+	"license": "proprietary",
+	"name": "simple",
+	"dependencies": {
+		"quickview": {
+			"path": "../.."
+		}
+	}
+}

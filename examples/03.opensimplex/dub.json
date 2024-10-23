@@ -1,0 +1,16 @@
+{
+	"authors": [
+		"Andrea Fontana"
+	],
+	"copyright": "Copyright © 2024, Andrea Fontana",
+	"dependencies": {
+		"qr": "~>1.0.2",
+		"quickview": {
+			"path": "../.."
+		}
+	},
+	"description": "A minimal D application.",
+	"license": "proprietary",
+	"name": "opensimplex",
+
+}

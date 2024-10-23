@@ -1,0 +1,16 @@
+.dub
+docs.json
+__dummy.html
+docs/
+/qrcode
+qrcode.so
+qrcode.dylib
+qrcode.dll
+qrcode.a
+qrcode.lib
+qrcode-test-*
+*.exe
+*.pdb
+*.o
+*.obj
+*.lst

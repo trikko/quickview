@@ -1,0 +1,16 @@
+.dub
+docs.json
+__dummy.html
+docs/
+/opensimplex
+opensimplex.so
+opensimplex.dylib
+opensimplex.dll
+opensimplex.a
+opensimplex.lib
+opensimplex-test-*
+*.exe
+*.pdb
+*.o
+*.obj
+*.lst
