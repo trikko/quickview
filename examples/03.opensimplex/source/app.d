@@ -67,6 +67,7 @@ void main()
 		Thread.sleep(max(0, 30 - cast(int)delta).msecs);
 
 		// On OSX, the event loop must be run on the main thread, so we need to call it here manually
+		// This is not required on other platforms
 		version(OSX) display.runEventLoopIteration();
 	}
 
