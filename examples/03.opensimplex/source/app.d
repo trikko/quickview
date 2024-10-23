@@ -65,6 +65,8 @@ void main()
 		// Trying to keep ~30fps
 		auto delta = (watch.peek - t).total!"msecs";
 		Thread.sleep(max(0, 30 - cast(int)delta).msecs);
+
+		display.runEventLoopIteration();
 	}
 
 }

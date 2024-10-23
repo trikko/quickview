@@ -15,6 +15,7 @@ void main()
 	// Showing the first frame from a video, from internet
 	showImage("https://www.pexels.com/download/video/1851190/?fps=25.0&h=540&w=960", "Frame from remote video");
 
+	QuickView.waitForAll();
 }
 
 void showImage(string src, string title = "")

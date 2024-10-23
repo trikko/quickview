@@ -21,7 +21,7 @@ Color yuv(ubyte y, ubyte u, ubyte v) {
     return Color.fromYUV(fy, fu, fv);
 }
 
-version=EVENT_ON_MAIN_THREAD;
+version(OSX) version = EVENT_ON_MAIN_THREAD;
 
 class QuickView
 {
@@ -68,26 +68,13 @@ class QuickView
     }
 
 
-
-    version(EVENT_ON_MAIN_THREAD)
-    {
-        static void eventLoop() {
-            runEventLoop();
-        }
-    }
-
     this(ulong w, ulong h, string title = "QuickView", long x = -1, long y = -1, string format = "rgb", bool exitOnEscape = true) {
 
         synchronized {
             if (eventThread is null)
             {
-                version(EVENT_ON_MAIN_THREAD) {
-
-                }
-                else {
-                    eventThread = new Thread(&QuickView.runEventLoop);
-                    eventThread.start();
-                }
+                version(EVENT_ON_MAIN_THREAD) {}
+                else eventThread = new Thread({ QuickView.runEventLoop(); }).start();
             }
         }
 
@@ -216,7 +203,7 @@ class QuickView
 
     void waitForClose() {
         version(EVENT_ON_MAIN_THREAD) {
-
+            runEventLoop(this);
         }
         else {
             closeEvent.wait();
@@ -269,43 +256,53 @@ class QuickView
         }
     }
 
-    private static void runEventLoop() {
-        SDL_Event event;
-        bool handling_escape = false;
-
+    private static void runEventLoop(QuickView window = null) {
         running = true;
 
-        while (running) {
-            auto ret = SDL_WaitEvent(&event);
+        while (running && (window is null || window.isOpen())) {
+            runEventLoopIterationImpl(true);
+        }
+    }
 
-            if (ret) {
+    static void runEventLoopIteration() {
+        runEventLoopIterationImpl(false);
+    }
 
-                if ([SDL_WINDOWEVENT, SDL_MOUSEBUTTONDOWN, SDL_MOUSEBUTTONUP, SDL_MOUSEMOTION, SDL_KEYDOWN, SDL_KEYUP].canFind(event.type)) {
+    private static void runEventLoopIterationImpl(bool wait = false) {
+        SDL_Event event;
 
-                    auto wid = SDL_GetWindowFromID(event.window.windowID);
-                    auto w = wid in windows;
+        again:
+        auto ret = wait?SDL_WaitEvent(&event):SDL_PollEvent(&event);
 
-                    if (w)
-                    {
-                        synchronized {
-                            w.processEvent(event);
-                        }
-                    }
-                }
+        if (ret) {
 
-                else if (event.type == SDL_QUIT) {
-                    // Handle SDL_QUIT event for a specific window
-                    auto wid = SDL_GetWindowFromID(event.window.windowID);
-                    if (wid in windows) {
-                        auto w = windows[wid];
-                        synchronized {
-                            w.free();
-                        }
+            if ([SDL_WINDOWEVENT, SDL_MOUSEBUTTONDOWN, SDL_MOUSEBUTTONUP, SDL_MOUSEMOTION, SDL_KEYDOWN, SDL_KEYUP].canFind(event.type)) {
+
+                auto wid = SDL_GetWindowFromID(event.window.windowID);
+                auto w = wid in windows;
+
+                if (w)
+                {
+                    synchronized {
+                        w.processEvent(event);
                     }
                 }
             }
 
+            else if (event.type == SDL_QUIT) {
+                // Handle SDL_QUIT event for a specific window
+                auto wid = SDL_GetWindowFromID(event.window.windowID);
+                if (wid in windows) {
+                    auto w = windows[wid];
+                    synchronized {
+                        w.free();
+                    }
+                }
+            }
         }
+
+        if (ret && !wait)
+            goto again;
     }
 
     static void terminate() {
