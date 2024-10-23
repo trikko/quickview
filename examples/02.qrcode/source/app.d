@@ -34,7 +34,7 @@ QuickView render(QrCode qr, string title)
 	foreach(y; 0..qr.size)
 		foreach(x; 0..qr.size)
 			if (qr[x,y])
-				w.rect(x: 20 + x*10, y:20 + y*10, w:10, h:10, rgb("#000000"));
+				w.rect(x: 20 + x*10, y:20 + y*10, w:10, h:10, color:rgb("#000000"));
 
 	w.draw();
 	return w;
