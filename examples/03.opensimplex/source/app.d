@@ -66,7 +66,8 @@ void main()
 		auto delta = (watch.peek - t).total!"msecs";
 		Thread.sleep(max(0, 30 - cast(int)delta).msecs);
 
-		display.runEventLoopIteration();
+		// On OSX, the event loop must be run on the main thread, so we need to call it here manually
+		version(OSX) display.runEventLoopIteration();
 	}
 
 }
