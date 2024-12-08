@@ -18,7 +18,7 @@ void main()
 
 	new QuickView(800, 600) // Also new QuickView(w: 800, h: 600)
 		.buffer(pixels)		// Set the buffer to the checkerboard pattern
-		.circle(cx: 400, cy: 300, diameter: 200, color: rgb("#99dd33")) // Draw a circle
+		.circle(cx: 400, cy: 300, diameter: 200, color: rgb("#99dd33AA")) // Draw a circle with some transparency
 		.draw() 					// Draw the buffer to the screen
 		.waitForClose();		// Wait for the window to be closed
 
