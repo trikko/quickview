@@ -21,13 +21,9 @@ Color yuv(ubyte y, ubyte u, ubyte v) {
     return Color.fromYUV(fy, fu, fv);
 }
 
-version(OSX) version = EVENT_ON_MAIN_THREAD;
-
 class QuickView
 {
     alias EventCallback = bool delegate(SDL_Event);
-
-
 
     public void onEvent(EventCallback callback) {
         eventCallback = callback;
@@ -70,19 +66,11 @@ class QuickView
 
     this(ulong w, ulong h, string title = "QuickView", long x = -1, long y = -1, string format = "rgb", bool exitOnEscape = true) {
 
-        synchronized {
-            if (eventThread is null)
-            {
-                version(EVENT_ON_MAIN_THREAD) {}
-                else eventThread = new Thread({ QuickView.runEventLoop(); }).start();
-            }
-        }
-
         this.width = w;
         this.height = h;
         this.format = format;
 
-        uint flags = SDL_WINDOW_SHOWN;
+        uint flags = SDL_WINDOW_SHOWN | SDL_WINDOW_ALLOW_HIGHDPI;
         uint sx = SDL_WINDOWPOS_CENTERED, sy = SDL_WINDOWPOS_CENTERED;
 
         if (x >= 0) sx = cast(uint)x;
@@ -202,12 +190,7 @@ class QuickView
     }
 
     void waitForClose() {
-        version(EVENT_ON_MAIN_THREAD) {
-            runEventLoop(this);
-        }
-        else {
-            closeEvent.wait();
-        }
+        runEventLoop(this);
     }
 
 

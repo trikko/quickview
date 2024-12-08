@@ -6,6 +6,7 @@ import quickview;
 __gshared QuickView display;
 __gshared ubyte[] buffer;
 __gshared libvlc_media_player_t* player;
+__gshared float pos = 0;
 
 enum VIDEO_WIDTH = 1296/2; 	// It's fixed on the example video resolution
 enum VIDEO_HEIGHT = 1080/2;	// It's fixed on the example video resolution
@@ -24,21 +25,7 @@ extern(C)
 void render_frame(void* opaque, void* picture)
 {
 	// Get the current position of the video
-	float pos = min(1, max(0, libvlc_media_player_get_position(player)));
-
-	if (buffer.length > 0)
-	{
-		// Copy the buffer to the display
-	 	display.buffer(buffer[0..VIDEO_WIDTH*VIDEO_HEIGHT*3]);
-
-
-		// Draw the seek bar and the border
-		display.rect(x: 10, y: VIDEO_HEIGHT - 40, w: cast(int)((VIDEO_WIDTH - 20)*pos), h: 30, color: rgb("#345522cc"), fill: true);
-		display.rect(x: 10, y: VIDEO_HEIGHT - 40, w: VIDEO_WIDTH - 20, h: 30, color: rgb("#345522ff"), stroke: 5, fill: false);
-
-		// Render the display
-		display.draw();
-	}
+	pos = min(1, max(0, libvlc_media_player_get_position(player)));
 
 	// If the video is at the end, restart it
 	if (pos >= 1)
@@ -128,8 +115,30 @@ void main() {
 		return false;
 	};
 
-	// Wait for the window to close
-	display.waitForClose();
+
+
+	while(display.isOpen)
+	{
+		if (buffer.length > 0)
+		{
+			// Copy the buffer to the display
+			display.buffer(buffer[0..VIDEO_WIDTH*VIDEO_HEIGHT*3]);
+
+
+			// Draw the seek bar and the border
+			display.rect(x: 10, y: VIDEO_HEIGHT - 40, w: cast(int)((VIDEO_WIDTH - 20)*pos), h: 30, color: rgb("#345522cc"), fill: true);
+			display.rect(x: 10, y: VIDEO_HEIGHT - 40, w: VIDEO_WIDTH - 20, h: 30, color: rgb("#345522ff"), stroke: 5, fill: false);
+
+			// Render the display
+			display.draw();
+		}
+
+		display.runEventLoopIteration();
+	}
+
+
+	libvlc_media_player_release(player);
+	libvlc_release(libvlc);
 
 	writeln("Goodbye!");
 

@@ -68,7 +68,7 @@ void main()
 
 		// On OSX, the event loop must be run on the main thread, so we need to call it here manually
 		// This is not required on other platforms
-		version(OSX) display.runEventLoopIteration();
+		display.runEventLoopIteration();
 	}
 
 }
