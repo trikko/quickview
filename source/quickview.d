@@ -273,14 +273,8 @@ class QuickView
             }
 
             else if (event.type == SDL_QUIT) {
-                // Handle SDL_QUIT event for a specific window
-                auto wid = SDL_GetWindowFromID(event.window.windowID);
-                if (wid in windows) {
-                    auto w = windows[wid];
-                    synchronized {
-                        w.free();
-                    }
-                }
+                foreach (w; windows)
+                    w.free();
             }
         }
 
@@ -492,60 +486,75 @@ class QuickView
             long radiusX = w / 2;
             long radiusY = h / 2;
 
-            long rx2 = radiusX * radiusX;
-            long ry2 = radiusY * radiusY;
-            long twoRx2 = 2 * rx2;
-            long twoRy2 = 2 * ry2;
-            long p;
-            long px = 0;
-            long py = twoRx2 * radiusY;
-            long xx = 0;
-            long yy = radiusY;
+            // Per il riempimento, usiamo un approccio scanline per evitare sovrapposizioni
+            if (fill) {
+                for (long dy = -radiusY; dy <= radiusY; dy++) {
+                    long py = centerY + dy;
+                    // Calcola i punti di intersezione per questa scanline
+                    float dx = radiusX * sqrt(1.0 - (dy * dy) / cast(float)(radiusY * radiusY));
+                    long startX = cast(long)(centerX - dx);
+                    long endX = cast(long)(centerX + dx);
 
-            void drawOvalPolongs(long cx, long cy, long x, long y, bool fill) {
-                if (fill) {
-                    lineImpl(cx - x, cy + y, cx + x, cy + y, r, g, b, a, 1);
-                    if (y != 0) lineImpl(cx - x, cy - y, cx + x, cy - y, r, g, b, a, 1);
-                } else {
-                    lineImpl(cx + x, cy + y, cx + x, cy + y, r, g, b, a, stroke);
-                    lineImpl(cx - x, cy + y, cx - x, cy + y, r, g, b, a, stroke);
-                    lineImpl(cx + x, cy - y, cx + x, cy - y, r, g, b, a, stroke);
-                    lineImpl(cx - x, cy - y, cx - x, cy - y, r, g, b, a, stroke);
+                    // Disegna la linea orizzontale una sola volta
+                    for (long px = startX; px <= endX; px++) {
+                        setPixel(px, py, r, g, b, a);
+                    }
                 }
             }
 
-            // Region 1
-            p = cast(long)round(ry2 - (rx2 * radiusY) + (0.25 * rx2));
-            while (px < py) {
-                drawOvalPolongs(centerX, centerY, cast(long)xx, cast(long)yy, fill);
-                xx++;
-                px += twoRy2;
-                if (p < 0)
-                    p += ry2 + px;
-                else {
-                    yy--;
-                    py -= twoRx2;
-                    p += ry2 + px - py;
-                }
-            }
+            // Per il bordo, usiamo l'algoritmo originale ma solo per il contorno
+            if (stroke > 0) {
+                long rx2 = radiusX * radiusX;
+                long ry2 = radiusY * radiusY;
+                long twoRx2 = 2 * rx2;
+                long twoRy2 = 2 * ry2;
+                long p;
+                long px = 0;
+                long py = twoRx2 * radiusY;
+                long xx = 0;
+                long yy = radiusY;
 
-            // Region 2
-            p = cast(long)round(ry2 * (xx + 0.5) * (xx + 0.5) + rx2 * (yy - 1) * (yy - 1) - rx2 * ry2);
-            while (yy > 0) {
-                drawOvalPolongs(centerX, centerY, cast(long)xx, cast(long)yy, fill);
-                yy--;
-                py -= twoRx2;
-                if (p > 0)
-                    p += rx2 - py;
-                else {
+                void drawOvalPoints(long cx, long cy, long x, long y) {
+                    for (long st = 0; st < stroke; st++) {
+                        setPixel(cx + x + st, cy + y, r, g, b, a);
+                        setPixel(cx - x - st, cy + y, r, g, b, a);
+                        setPixel(cx + x + st, cy - y, r, g, b, a);
+                        setPixel(cx - x - st, cy - y, r, g, b, a);
+                    }
+                }
+
+                // Region 1
+                p = cast(long)round(ry2 - (rx2 * radiusY) + (0.25 * rx2));
+                while (px < py) {
+                    drawOvalPoints(centerX, centerY, cast(long)xx, cast(long)yy);
                     xx++;
                     px += twoRy2;
-                    p += rx2 - py + px;
+                    if (p < 0)
+                        p += ry2 + px;
+                    else {
+                        yy--;
+                        py -= twoRx2;
+                        p += ry2 + px - py;
+                    }
                 }
+
+                // Region 2
+                p = cast(long)round(ry2 * (xx + 0.5) * (xx + 0.5) + rx2 * (yy - 1) * (yy - 1) - rx2 * ry2);
+                while (yy > 0) {
+                    drawOvalPoints(centerX, centerY, cast(long)xx, cast(long)yy);
+                    yy--;
+                    py -= twoRx2;
+                    if (p > 0)
+                        p += rx2 - py;
+                    else {
+                        xx++;
+                        px += twoRy2;
+                        p += rx2 - py + px;
+                    }
+                }
+
+                drawOvalPoints(centerX, centerY, cast(long)xx, 0);
             }
-
-            drawOvalPolongs(centerX, centerY, cast(long)xx, 0, fill);
-
         }
         catch (Exception e) {
             throw new Exception("Error drawing oval: " ~ e.msg);
