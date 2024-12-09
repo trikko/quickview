@@ -66,7 +66,7 @@ void showImage(string src, string title = "")
 		return;
 	}
 
-	auto data = line.front.matchFirst(ctRegex!(r"s:(\d+)x(\d+)"));
+	auto data = line.front.matchFirst(ctRegex!(r" s:(\d+)x(\d+)"));
 
 	if (!data)
 	{
