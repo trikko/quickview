@@ -1,0 +1,14 @@
+{
+	"authors": [
+		"Andrea Fontana"
+	],
+	"copyright": "Copyright © 2024, Andrea Fontana",
+	"dependencies": {
+		"quickview": {
+			"path": "../.."
+		}
+	},
+	"description": "A minimal D application.",
+	"license": "proprietary",
+	"name": "ffmpeg-video"
+}
