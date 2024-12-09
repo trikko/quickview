@@ -6,7 +6,8 @@
 	"dependencies": {
 		"bindbc-sdl": "~>1.5.0"
 	},
-	"description": "A minimal D application.",
+	"description": "A tiny library to create a window and draw on it.",
 	"license": "MIT",
-	"name": "quickview"
+	"name": "quickview",
+	"versions": ["SDL_2020"]
 }
