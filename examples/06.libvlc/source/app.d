@@ -1,6 +1,8 @@
 import std;
 import quickview;
 
+version(osx) { static assert(false, "This example is not supported on macOS. If you can make libvlc work on macOS, please let me know!"); }
+
 // You need to install libvlc to run this example
 
 __gshared QuickView display;
@@ -49,7 +51,7 @@ void main() {
 	buffer.length = VIDEO_WIDTH*VIDEO_HEIGHT*3;
 
 	// Create a VLC instance
-	libvlc_instance_t* libvlc = libvlc_new(4, ["--verbose=-1", "--no-xlib", "--drop-late-frames", "--live-caching=0"].map!(x => x.toStringz).array.ptr);
+	libvlc_instance_t* libvlc = libvlc_new(4, ["--verbose=-1", "--drop-late-frames", "--live-caching=0", "--no-xlib"].map!(x => x.toStringz).array.ptr);
 
 	if (libvlc == null)
 		throw new Exception("Failed to create VLC instance. Did you install libvlc?");
