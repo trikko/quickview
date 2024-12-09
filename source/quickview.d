@@ -64,11 +64,10 @@ class QuickView
     }
 
 
-    this(ulong w, ulong h, string title = "QuickView", long x = -1, long y = -1, string format = "rgb", bool exitOnEscape = true) {
+    this(ulong w, ulong h, string title = "QuickView", long x = -1, long y = -1, bool exitOnEscape = true) {
 
         this.width = w;
         this.height = h;
-        this.format = format;
 
         uint flags = SDL_WINDOW_SHOWN | SDL_WINDOW_ALLOW_HIGHDPI;
         uint sx = SDL_WINDOWPOS_CENTERED, sy = SDL_WINDOWPOS_CENTERED;
@@ -116,21 +115,17 @@ class QuickView
     }
 
 
-    QuickView clear(Color color = Color(255, 255, 255), string format="rgb" ) {
-        try {
-            auto r = color.r, g = color.g, b = color.b;
+    QuickView clear(Color color = Color(255, 255, 255)) {
 
-            foreach(i; 0.._buffer.length/3) {
-                _buffer[i*3+0] = r;
-                _buffer[i*3+1] = g;
-                _buffer[i*3+2] = b;
-            }
+        auto r = color.r, g = color.g, b = color.b;
 
-            buffer(_buffer, format);
+        foreach(i; 0.._buffer.length/3) {
+            _buffer[i*3+0] = r;
+            _buffer[i*3+1] = g;
+            _buffer[i*3+2] = b;
         }
-        catch (Exception e) {
-            throw new Exception("Invalid color format: " ~ e.msg);
-        }
+
+        buffer(_buffer);
 
         return this;
     }
@@ -145,7 +140,7 @@ class QuickView
     bool isClosed() nothrow { return window is null; }
     bool isOpen() nothrow { return !isClosed(); }
 
-    QuickView buffer(T)(T[] buf, string format = null, bool wait = false) {
+    QuickView buffer(T)(T[] buf, bool wait = false) {
         if (!window)
             return this;
 
@@ -157,10 +152,6 @@ class QuickView
             else static if (is(T == float)) _buffer[0..minLen] = buf.map!(x => cast(ubyte)(x * 255)).array[0..minLen].dup;
             else static assert(false, "Invalid buffer type");
         }
-
-        if (format.length > 0)
-            this.format = format;
-
 
         if (wait)
         {
@@ -628,7 +619,6 @@ class QuickView
     }
 
     private:
-        string          format = "rgb";
 
         ubyte[]         _buffer;
         ulong            width, height;
