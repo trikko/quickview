@@ -3,10 +3,10 @@ module app;
 import std;
 import quickview;
 
-// This example shows a quick way to display a video in a QuickView window using ffmpeg
+// This example demonstrates how to display a video in a QuickView window using ffmpeg
 void main()
 {
-	// Showing a sunraster image (public domain)
+	// Display a video file (public domain)
 	showVideo("https://upload.wikimedia.org/wikipedia/commons/5/5f/Steamboat_Willie_%281928%29_by_Walt_Disney.webm");
 	QuickView.waitForAll();
 }
@@ -21,10 +21,10 @@ void showVideo(string src, string title = "")
 
 	cmdLine ~= ["-f", "rawvideo", "-pix_fmt", "rgb24", "-"];
 
-	// Open a pipe to the ffmpeg command, converting data to raw rgb24 format
+	// Create a pipe to ffmpeg command, converting video to raw rgb24 format
 	auto cmd = pipeProcess(cmdLine, Redirect.all);
 
-	// Fixed resolution of the video (for the example video)
+	// Set fixed resolution for the video (specific to this example)
 	int width = 1296;
 	int height = 1080;
 

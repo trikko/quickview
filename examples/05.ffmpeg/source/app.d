@@ -12,13 +12,14 @@ void main()
 	// Showing a jpg image, from internet
 	showImage("https://upload.wikimedia.org/wikipedia/commons/thumb/c/cf/Sidney_Hall_-_Urania%27s_Mirror_-_Scorpio.jpg/536px-Sidney_Hall_-_Urania%27s_Mirror_-_Scorpio.jpg", "Remote image");
 
-	// Showing the first frame from a video, from internet
-	showImage("https://www.pexels.com/download/video/1851190/?fps=25.0&h=540&w=960", "Frame from remote video");
+	// Showing the first frame and one from the 3rd second of a video from internet
+	showImage("https://www.pexels.com/it-it/download/video/6635693/?fps=30.0&h=540&w=960", "Frame from remote video (start)");
+	showImage("https://www.pexels.com/it-it/download/video/6635693/?fps=30.0&h=540&w=960", "Frame from remote video (after 3s)", 3.seconds);
 
 	QuickView.waitForAll();
 }
 
-void showImage(string src, string title = "")
+void showImage(string src, string title = "", Duration offset = Duration.zero)
 {
 	// Open a pipe to the ffmpeg command, converting data to raw rgb24 format
 	auto cmd = pipeProcess(
@@ -26,6 +27,7 @@ void showImage(string src, string title = "")
 			"ffmpeg", "-i", src,	// Input file
 			"-vf", "showinfo",	// Video filter to get info
 			"-vframes", "1",		// Always extract one frame
+			"-ss", offset.total!"seconds".to!string,	// Start at offset
 			"-f", "rawvideo",
 			"-pix_fmt", "rgb24",
 			"-"
